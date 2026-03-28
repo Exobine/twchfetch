@@ -70,10 +70,7 @@ This is a project I wanted to make to avoid directly interacting with the ever-g
 git clone https://github.com/Exobine/twchfetch.git
 cd twchfetch
 
-# 2. Fetch dependencies
-go mod download
-
-# 3. Build
+# 2. Build
 go build -o twchfetch .        # Linux / macOS
 go build -o twchfetch.exe .    # Windows
 ```
