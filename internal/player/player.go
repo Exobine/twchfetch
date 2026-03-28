@@ -32,35 +32,40 @@ func Launch(url, playerPath string, extraArgs []string) error {
 }
 
 // resolve finds the first usable player binary.
+// When configured is empty, playback is considered disabled and an error is
+// returned immediately — DefaultCandidates and PATH are not searched.
+// When configured is set but the exact path is not found, DefaultCandidates
+// and PATH are tried as fallbacks.
 func resolve(configured string) (string, error) {
-	candidates := []string{}
-	if configured != "" {
-		candidates = append(candidates, configured)
+	if configured == "" {
+		return "", fmt.Errorf("no player configured — set player_path in Settings (s key)")
 	}
-	candidates = append(candidates, DefaultCandidates...)
 
-	for _, p := range candidates {
+	// Try the configured path first.
+	if _, err := os.Stat(configured); err == nil {
+		return configured, nil
+	}
+
+	// Configured path not found — try DefaultCandidates as fallback.
+	for _, p := range DefaultCandidates {
 		if _, err := os.Stat(p); err == nil {
 			return p, nil
 		}
 	}
 
-	// Fall back to PATH lookup using the executable name from configured path
+	// Fall back to PATH lookup using the executable name from configured path.
 	name := playerNameFromPath(configured)
-	if name == "" {
-		name = "mpv"
-	}
 	if path, err := exec.LookPath(name); err == nil {
 		return path, nil
 	}
-	// Also try bare "mpv" if configured name differs
+	// Also try bare "mpv" if configured name differs.
 	if name != "mpv" {
 		if path, err := exec.LookPath("mpv"); err == nil {
 			return path, nil
 		}
 	}
 
-	return "", fmt.Errorf("player not found — set player_path in Settings (s key) or config.toml")
+	return "", fmt.Errorf("player not found: %q — check player_path in Settings (s key)", configured)
 }
 
 // playerNameFromPath extracts the executable name from a full path.

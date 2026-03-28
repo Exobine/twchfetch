@@ -1402,6 +1402,10 @@ func (m Model) updateDetails(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	case "v":
 		return m.openVODs()
 	case "p":
+		if m.cfg.PlayerPath == "" {
+			m, cmd := m.showErrorDialog("No player configured — set player_path in Settings (s key)")
+			return m, cmd
+		}
 		if m.detailData != nil {
 			url := fmt.Sprintf("https://www.twitch.tv/%s", m.selectedUser)
 			return m, launchPlayerCmd(url, m.cfg)
@@ -1422,6 +1426,10 @@ func (m Model) updateDetails(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) playLatestVOD() (Model, tea.Cmd) {
+	if m.cfg.PlayerPath == "" {
+		m, cmd := m.showErrorDialog("No player configured — set player_path in Settings (s key)")
+		return m, cmd
+	}
 	// Use cached VODs if available.
 	if entry, ok := m.cache.Get(m.selectedUser); ok && len(entry.VODs) > 0 {
 		logging.Info("Playing latest VOD from cache", "user", m.selectedUser)
@@ -1497,6 +1505,11 @@ func (m Model) updateVODs(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		// Normal VOD: play selected (or Np play)
+		if m.cfg.PlayerPath == "" {
+			m.vodNumBuf = ""
+			m, cmd := m.showErrorDialog("No player configured — set player_path in Settings (s key)")
+			return m, cmd
+		}
 		idx := m.vodSelected
 		if nb, ok := parseNumBuf(m.vodNumBuf, len(m.vods)); ok {
 			idx = nb
