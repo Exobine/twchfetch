@@ -57,7 +57,7 @@ This is a project I wanted to make to avoid directly interacting with the ever-g
 
 | Dependency | Notes |
 |---|---|
-| [Go](https://go.dev/dl/) 1.24+ | Build toolchain |
+| [Go](https://go.dev/dl/) 1.26.1+ | Build toolchain |
 | [mpv](https://mpv.io/) | Stream / VOD playback |
 | Twitch OAuth token | Optional — enables follow-list and authenticated chat |
 
@@ -70,13 +70,15 @@ This is a project I wanted to make to avoid directly interacting with the ever-g
 git clone https://github.com/Exobine/twchfetch.git
 cd twchfetch
 
-# 2. Copy and fill in the config
-cp config.example.toml config.toml
-$EDITOR config.toml
+# 2. Fetch dependencies
+go mod download
 
 # 3. Build
-go build -o twchfetch .
+go build -o twchfetch .        # Linux / macOS
+go build -o twchfetch.exe .    # Windows
 ```
+
+A `config.toml` is created automatically the first time you save a setting in the app. You can also copy `config.example.toml` manually if you prefer to set values like `player_path` before first run.
 
 ---
 
