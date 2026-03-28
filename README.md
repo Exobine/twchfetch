@@ -6,6 +6,8 @@ Monitor a configurable list of channels, browse VODs, and watch live chat — al
 
 Built on the excellent TUI framework and tooling from [Charmbracelet](https://github.com/charmbracelet) — specifically [Bubbletea](https://github.com/charmbracelet/bubbletea), [Bubbles](https://github.com/charmbracelet/bubbles), [Lipgloss](https://github.com/charmbracelet/lipgloss), [Glamour](https://github.com/charmbracelet/glamour), and [Huh](https://github.com/charmbracelet/huh). This project wouldn't exist in its current form without their work.
 
+Also makes use of [BurntSushi/toml](https://github.com/BurntSushi/toml) for config parsing and [zalando/go-keyring](https://github.com/zalando/go-keyring) for secure OS credential storage.
+
 > **Platform:** currently tested on **Windows only**. Linux and macOS are supported in code but untested — behaviour may vary.
 >
 > **Stability:** the `main` branch is considered mostly functional. Some features are still in active development and may not behave as fully intended. See the `dev` branch for the latest in-progress changes.
