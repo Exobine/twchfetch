@@ -324,10 +324,14 @@ func (m Model) updateSettings(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 					return m2, cmd
 				}
 				m.settings.Fields[fi].SetValue(newVal)
-			case "left":
-				m.settings.Fields[fi].SetValue(c.Cycle(m.settings.Fields[fi].Value(), -1))
-			}
-			return m, nil
+		case "left":
+			m.settings.Fields[fi].SetValue(c.Cycle(m.settings.Fields[fi].Value(), -1))
+		}
+		// Sync dependent placeholders whenever player type changes.
+		if fi == views.FieldPlayerType {
+			m.settings = views.SyncPlayerTypePlaceholders(m.settings)
+		}
+		return m, nil
 		}
 		// For free-text and numeric fields, drop printable characters that are
 		// outside the accepted set for this field so invalid input never reaches

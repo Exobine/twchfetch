@@ -252,6 +252,16 @@ func oauthNote(src config.TokenSource) string {
 	}
 }
 
+// SyncPlayerTypePlaceholders updates the player_path and player_args placeholder
+// text to match the currently selected player type. Call this whenever the
+// FieldPlayerType value changes so the hint text stays accurate.
+func SyncPlayerTypePlaceholders(m SettingsModel) SettingsModel {
+	t := PlayerTypeFromString(m.Fields[FieldPlayerType].Value())
+	m.Fields[FieldPlayerPath].Placeholder = fmt.Sprintf("leave empty to search $PATH for %s", t)
+	m.Fields[FieldPlayerArgs].Placeholder = playerArgsPlaceholder(t)
+	return m
+}
+
 // PlayerTypeFromString normalises a player type string to "mpv" or "vlc".
 func PlayerTypeFromString(s string) string {
 	switch strings.ToLower(strings.TrimSpace(s)) {
