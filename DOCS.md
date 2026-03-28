@@ -27,9 +27,9 @@ An OAuth token is optional but substantially changes what the application can do
 
 - The `streamers.list` array in `config.toml` is used as the channel list.
 - Chat connects anonymously using a randomly generated `justinfanNNNNNN` nick.
-- Anonymous chat connections **cannot** read follower-only or sub-only chat rooms.
-  The connection will succeed but Twitch will silently reject incoming messages in
-  restricted channels.
+- Anonymous connections can read follower-only and sub-only chat rooms normally.
+  The restriction only applies to **sending** messages — anonymous users cannot
+  chat in restricted rooms, but reading is unaffected.
 
 ### With a token (authenticated)
 
@@ -38,8 +38,8 @@ An OAuth token is optional but substantially changes what the application can do
 - Your followed channel list is fetched automatically via the Twitch Helix API
   (up to 500 channels). When this succeeds, `streamers.list` is **completely
   bypassed** — the followed list is used instead.
-- Chat authenticates as your account, which allows reading follower-only and
-  sub-only channels that your account has access to.
+- Chat authenticates as your account. This is required if you want to **send**
+  messages in follower-only or sub-only channels that your account has access to.
 - If token validation fails at startup (network error, expired token), the
   application falls back to anonymous mode silently rather than refusing to start.
 
@@ -229,8 +229,10 @@ On connection:
 | Feature | Anonymous | Authenticated |
 |---|---|---|
 | Read normal chat | Yes | Yes |
-| Read follower-only chat | No | Yes (if you follow) |
-| Read sub-only chat | No | Yes (if you subscribe) |
+| Read follower-only chat | Yes | Yes |
+| Read sub-only chat | Yes | Yes |
+| Send in follower-only chat | No | Yes (if you follow) |
+| Send in sub-only chat | No | Yes (if you subscribe) |
 | Send messages | No | Yes (not currently exposed in UI) |
 
 ### Auto-reconnect
