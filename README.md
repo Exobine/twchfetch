@@ -6,7 +6,7 @@ Monitor a configurable list of channels, browse VODs, and watch live chat — al
 
 Built on the excellent TUI framework and tooling from [Charmbracelet](https://github.com/charmbracelet) — specifically [Bubbletea](https://github.com/charmbracelet/bubbletea), [Bubbles](https://github.com/charmbracelet/bubbles), [Lipgloss](https://github.com/charmbracelet/lipgloss), [Glamour](https://github.com/charmbracelet/glamour), and [Huh](https://github.com/charmbracelet/huh). This project wouldn't exist in its current form without their work.
 
-Also makes use of [BurntSushi/toml](https://github.com/BurntSushi/toml) for config parsing and [zalando/go-keyring](https://github.com/zalando/go-keyring) for secure OS credential storage.
+Also makes use of [BurntSushi/toml](https://github.com/BurntSushi/toml) for config parsing, [zalando/go-keyring](https://github.com/zalando/go-keyring) for secure OS credential storage, [coder/websocket](https://github.com/coder/websocket) for the IRC-over-WebSocket chat connection, and [golang.design/x/clipboard](https://pkg.go.dev/golang.design/x/clipboard) for system clipboard integration.
 
 > **Platform:** currently tested on **Windows only**. Linux and macOS are supported in code but untested — behaviour may vary.
 >
