@@ -30,6 +30,10 @@ This is a project I wanted to make to avoid directly interacting with the ever-g
 >
 > It's a TUI — it mostly uses keyboard shortcuts to get things done and isn't necessarily fool-proof. A more user-friendly interface may come at some point, but not soon.
 
+> **"What's this name 'twchfetch'?"**
+>
+> Literally just a random name. It means Twitch Fetch — we're fetching data and info from twitch.tv for use in the TUI app.
+
 ---
 
 ## Features
