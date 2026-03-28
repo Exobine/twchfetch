@@ -42,7 +42,7 @@ This is a project I wanted to make to avoid directly interacting with the ever-g
 - **Card and list display modes** — switch between compact table rows or visual channel cards
 - **VOD browser** — browse and open VODs per channel, filterable by category
 - **Live chat** — full Twitch IRC chat including:
-  - Emote colouring and third-party emotes (7TV / BTTV / FFZ)
+  - Emote colouring and third-party emotes (7TV / BTTV)
   - Coloured badge glyphs (● broadcaster, ⚔ mod, ■ sub, ◆ VIP) — switchable to text labels `[Mod]` / `[Sub]` etc. for terminals that can't render the symbols
   - Reply threading, repeat-message collapsing, localised display names
   - Gift bomb suppression — when a gifter sends multiple subs at once, individual gift pings are collapsed into a single summary line; works in both arrival orders
@@ -59,7 +59,7 @@ This is a project I wanted to make to avoid directly interacting with the ever-g
 |---|---|
 | [Go](https://go.dev/dl/) 1.24+ | Build toolchain |
 | [mpv](https://mpv.io/) | Stream / VOD playback |
-| Twitch OAuth token | Needed for follow-list and authenticated API calls |
+| Twitch OAuth token | Optional — enables follow-list and authenticated chat |
 
 ---
 
@@ -137,17 +137,32 @@ The keyring method is strongly recommended — your token never touches the file
 
 ### Key bindings (defaults)
 
+#### Channel list
 | Key | Action |
 |---|---|
-| `↑ / ↓` or `j / k` | Navigate list |
-| `Enter` | Open stream in mpv |
-| `v` | Open VOD browser for selected channel |
-| `c` | Toggle chat pane |
-| `s` | Open search |
-| `r` | Force refresh stream list |
-| `tab` | Switch display mode (list ↔ cards) |
-| `?` | Show full help |
+| `↑ / ↓` or `j / k` | Navigate |
+| `Enter` | Open channel details |
+| `/` | Search |
+| `a / o / f` | Filter: all / live / offline |
+| `r` | Force refresh |
+| `s` | Settings |
 | `q` | Quit |
+
+#### Channel details
+| Key | Action |
+|---|---|
+| `p` | Play stream in mpv |
+| `t` | Open chat |
+| `v` | Open VOD browser |
+| `c` | Copy channel URL |
+| `esc` | Back to list |
+
+#### VODs
+| Key | Action |
+|---|---|
+| `↑ / ↓` or `j / k` | Navigate |
+| `Enter` | Play selected VOD |
+| `esc` | Back |
 
 ---
 
