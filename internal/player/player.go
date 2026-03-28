@@ -7,20 +7,39 @@ import (
 	"strings"
 )
 
-// DefaultCandidates are the fallback search paths tried when the configured
-// player path does not exist.
-var DefaultCandidates = []string{
+// mpvCandidates are common install locations for mpv on Windows.
+var mpvCandidates = []string{
 	`C:\mpv\mpv.exe`,
 	`C:\Program Files\MPV\mpv.exe`,
 	`C:\Program Files (x86)\MPV\mpv.exe`,
 	`C:\ProgramData\chocolatey\bin\mpv.exe`,
 }
 
+// vlcCandidates are common install locations for VLC on Windows.
+var vlcCandidates = []string{
+	`C:\Program Files\VideoLAN\VLC\vlc.exe`,
+	`C:\Program Files (x86)\VideoLAN\VLC\vlc.exe`,
+}
+
+// DefaultCandidates is kept for backwards compatibility; points to mpvCandidates.
+var DefaultCandidates = mpvCandidates
+
+// candidatesForType returns the default install-location candidates for the
+// given player type. Falls back to mpv candidates for unknown types.
+func candidatesForType(playerType string) ([]string, string) {
+	switch strings.ToLower(playerType) {
+	case "vlc":
+		return vlcCandidates, "vlc"
+	default:
+		return mpvCandidates, "mpv"
+	}
+}
+
 // Launch opens url in the configured player. playerPath is tried first;
-// if empty or not found, DefaultCandidates are searched, then PATH.
-// extraArgs are appended after the URL (e.g. "--volume=80").
-func Launch(url, playerPath string, extraArgs []string) error {
-	resolved, err := resolve(playerPath)
+// if empty or not found, default install locations for playerType are searched,
+// then PATH. extraArgs are appended after the URL.
+func Launch(url, playerPath, playerType string, extraArgs []string) error {
+	resolved, err := resolve(playerPath, playerType)
 	if err != nil {
 		return err
 	}
@@ -32,40 +51,42 @@ func Launch(url, playerPath string, extraArgs []string) error {
 }
 
 // resolve finds the first usable player binary.
-// When configured is empty, playback is considered disabled and an error is
-// returned immediately — DefaultCandidates and PATH are not searched.
-// When configured is set but the exact path is not found, DefaultCandidates
-// and PATH are tried as fallbacks.
-func resolve(configured string) (string, error) {
-	if configured == "" {
-		return "", fmt.Errorf("no player configured — set player_path in Settings (s key)")
+// If playerPath is set, it is tried first. When empty or not found, default
+// install locations for the player type are searched, then PATH.
+// An error is returned only when no usable binary can be found at all.
+func resolve(configured, playerType string) (string, error) {
+	// Try the explicitly configured path first.
+	if configured != "" {
+		if _, err := os.Stat(configured); err == nil {
+			return configured, nil
+		}
 	}
 
-	// Try the configured path first.
-	if _, err := os.Stat(configured); err == nil {
-		return configured, nil
-	}
-
-	// Configured path not found — try DefaultCandidates as fallback.
-	for _, p := range DefaultCandidates {
+	// Try default install-location candidates for the selected player type.
+	candidates, typeName := candidatesForType(playerType)
+	for _, p := range candidates {
 		if _, err := os.Stat(p); err == nil {
 			return p, nil
 		}
 	}
 
-	// Fall back to PATH lookup using the executable name from configured path.
-	name := playerNameFromPath(configured)
-	if path, err := exec.LookPath(name); err == nil {
-		return path, nil
-	}
-	// Also try bare "mpv" if configured name differs.
-	if name != "mpv" {
-		if path, err := exec.LookPath("mpv"); err == nil {
-			return path, nil
+	// Fall back to PATH lookup. If a custom path was configured, try its
+	// executable name first, then fall back to the player type name.
+	if configured != "" {
+		if name := playerNameFromPath(configured); name != "" {
+			if path, err := exec.LookPath(name); err == nil {
+				return path, nil
+			}
 		}
 	}
+	if path, err := exec.LookPath(typeName); err == nil {
+		return path, nil
+	}
 
-	return "", fmt.Errorf("player not found: %q — check player_path in Settings (s key)", configured)
+	if configured != "" {
+		return "", fmt.Errorf("player not found: %q — check player_path in Settings (s key)", configured)
+	}
+	return "", fmt.Errorf("%s not found — install it or set player_path in Settings (s key)", typeName)
 }
 
 // playerNameFromPath extracts the executable name from a full path.

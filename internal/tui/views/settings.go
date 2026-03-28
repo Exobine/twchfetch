@@ -25,7 +25,8 @@ const KeyringTokenSentinel = "\x01clear-token\x01"
 // SettingsField IDs.
 const (
 	// General section
-	FieldPlayerPath = iota
+	FieldPlayerType = iota // "mpv" | "vlc"
+	FieldPlayerPath
 	FieldPlayerArgs
 	FieldOAuthToken
 	FieldStreamers
@@ -67,7 +68,7 @@ const SectionHelp = 3
 // Section 2 (Chat) is always the same fields.
 // Section 3 (Help) has no editable fields.
 var SectionFields = [][]int{
-	{FieldPlayerPath, FieldPlayerArgs, FieldOAuthToken, FieldStreamers, FieldAutoRefresh, FieldCacheOverride, FieldDisplayMode},
+	{FieldPlayerType, FieldPlayerPath, FieldPlayerArgs, FieldOAuthToken, FieldStreamers, FieldAutoRefresh, FieldCacheOverride, FieldDisplayMode},
 	{}, // placeholder — content resolved dynamically via ActiveSectionFields
 	{}, // placeholder — Chat section
 	{}, // Help — no editable fields
@@ -132,6 +133,7 @@ type SettingsModel struct {
 }
 
 var fieldLabels = []string{
+	"Player type",
 	"Player path",
 	"Player args",
 	"OAuth token",
@@ -161,8 +163,9 @@ var fieldLabels = []string{
 }
 
 var fieldPlaceholders = []string{
-	`C:\mpv\mpv.exe`,
-	`--volume=80`,
+	"mpv",            // FieldPlayerType — overridden dynamically in NewSettingsModel
+	"",               // FieldPlayerPath — overridden dynamically in NewSettingsModel
+	"",               // FieldPlayerArgs — overridden dynamically in NewSettingsModel
 	"", // set dynamically based on TokenSource
 	"streamer1, streamer2, ...",
 	"5",
@@ -190,7 +193,8 @@ var fieldPlaceholders = []string{
 }
 
 var fieldNotes = []string{
-	"path to player executable",
+	`"mpv" or "vlc" — determines PATH search and default install locations`,
+	"path to player executable — leave empty to search $PATH for the selected type",
 	"extra flags appended after the URL",
 	"", // set dynamically based on TokenSource
 	"comma-separated list — ignored when an OAuth token is configured",
@@ -248,9 +252,29 @@ func oauthNote(src config.TokenSource) string {
 	}
 }
 
+// PlayerTypeFromString normalises a player type string to "mpv" or "vlc".
+func PlayerTypeFromString(s string) string {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "vlc":
+		return "vlc"
+	default:
+		return "mpv"
+	}
+}
+
+// playerArgsPlaceholder returns an example args string for the given player type.
+func playerArgsPlaceholder(playerType string) string {
+	switch strings.ToLower(playerType) {
+	case "vlc":
+		return "--volume=80 --fullscreen"
+	default:
+		return "--volume=80 --fs"
+	}
+}
+
 // NewSettingsModel creates a pre-filled SettingsModel.
 func NewSettingsModel(
-	playerPath, playerArgs, oauthToken, streamers string,
+	playerType, playerPath, playerArgs, oauthToken, streamers string,
 	autoRefreshMinutes, cacheOverrideMinutes int,
 	displayMode string,
 	cardWidth, cardColumns, cardPadH, cardPadV int,
@@ -281,6 +305,7 @@ func NewSettingsModel(
 	}
 
 	values := []string{
+		PlayerTypeFromString(playerType),
 		playerPath,
 		playerArgs,
 		oauthFieldValue,
@@ -323,6 +348,11 @@ func NewSettingsModel(
 		ti.SetStyles(s)
 		fields[i] = ti
 	}
+
+	// Dynamic placeholders based on the selected player type.
+	resolvedType := PlayerTypeFromString(playerType)
+	fields[FieldPlayerPath].Placeholder = fmt.Sprintf("leave empty to search $PATH for %s", resolvedType)
+	fields[FieldPlayerArgs].Placeholder = playerArgsPlaceholder(resolvedType)
 
 	// OAuth field: always mask the value so the token is never shown in plain text.
 	fields[FieldOAuthToken].EchoMode = textinput.EchoPassword
@@ -944,6 +974,7 @@ func withEnum(values ...string) FieldConstraint {
 // the ordered value set.  Adding a new settings field requires only one new
 // entry here — no other helper functions need to change.
 var FieldConstraints = [FieldCount]FieldConstraint{
+	FieldPlayerType:           withEnum("mpv", "vlc"),
 	FieldPlayerPath:           constraintFree,
 	FieldPlayerArgs:           constraintFree,
 	FieldOAuthToken:           constraintToken,

@@ -10,6 +10,7 @@ import (
 func (m Model) openSettings() (Model, tea.Cmd) {
 	m.view = viewSettings
 	m.settings = views.NewSettingsModel(
+		m.cfg.PlayerType,
 		m.cfg.PlayerPath,
 		views.PlayerArgsFromSlice(m.cfg.PlayerArgs),
 		m.cfg.OAuthToken,
@@ -369,6 +370,7 @@ func (m Model) saveSettingsCmd() tea.Cmd {
 		}
 	}
 
+	m.cfg.PlayerType = views.PlayerTypeFromString(m.settings.Fields[views.FieldPlayerType].Value())
 	m.cfg.PlayerPath = m.settings.Fields[views.FieldPlayerPath].Value()
 	m.cfg.PlayerArgs = views.PlayerArgsToSlice(m.settings.Fields[views.FieldPlayerArgs].Value())
 
