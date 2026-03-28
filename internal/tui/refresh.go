@@ -239,7 +239,7 @@ func fetchLatestVODCmd(client *api.Client, username string) tea.Cmd {
 
 func launchPlayerCmd(url string, cfg *config.Config) tea.Cmd {
 	return func() tea.Msg {
-		return MPVLaunchedMsg{Err: player.Launch(url, cfg.PlayerPath, cfg.PlayerArgs)}
+		return MPVLaunchedMsg{Err: player.Launch(url, cfg.PlayerPath, cfg.PlayerType, cfg.PlayerArgs)}
 	}
 }
 

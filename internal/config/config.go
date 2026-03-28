@@ -61,6 +61,7 @@ type ChatConfig struct {
 type Config struct {
 	ClientID           string          `toml:"client_id"`
 	OAuthToken         string          `toml:"oauth_token"` // kept for plaintext fallback; normally empty when keyring is used
+	PlayerType         string          `toml:"player_type"` // "mpv" | "vlc" — determines PATH and default install locations
 	PlayerPath         string          `toml:"player_path"`
 	PlayerArgs         []string        `toml:"player_args"`
 	ChapterHash        string          `toml:"chapter_hash"`
@@ -108,6 +109,7 @@ func ValidateOAuthToken(s string) (string, error) {
 func Defaults() *Config {
 	return &Config{
 		ClientID:          "kimne78kx3ncx6brgo4mv6wki5h1ko",
+		PlayerType:        "mpv",
 		PlayerPath:        "",
 		PlayerArgs:        []string{},
 		ChapterHash:       "71835d5ef425e154bf282453a926d99b328cdc5e32f36d3a209d0f4778b41203",

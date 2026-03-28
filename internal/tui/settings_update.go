@@ -10,6 +10,7 @@ import (
 func (m Model) openSettings() (Model, tea.Cmd) {
 	m.view = viewSettings
 	m.settings = views.NewSettingsModel(
+		m.cfg.PlayerType,
 		m.cfg.PlayerPath,
 		views.PlayerArgsFromSlice(m.cfg.PlayerArgs),
 		m.cfg.OAuthToken,
@@ -323,10 +324,14 @@ func (m Model) updateSettings(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 					return m2, cmd
 				}
 				m.settings.Fields[fi].SetValue(newVal)
-			case "left":
-				m.settings.Fields[fi].SetValue(c.Cycle(m.settings.Fields[fi].Value(), -1))
-			}
-			return m, nil
+		case "left":
+			m.settings.Fields[fi].SetValue(c.Cycle(m.settings.Fields[fi].Value(), -1))
+		}
+		// Sync dependent placeholders whenever player type changes.
+		if fi == views.FieldPlayerType {
+			m.settings = views.SyncPlayerTypePlaceholders(m.settings)
+		}
+		return m, nil
 		}
 		// For free-text and numeric fields, drop printable characters that are
 		// outside the accepted set for this field so invalid input never reaches
@@ -369,6 +374,7 @@ func (m Model) saveSettingsCmd() tea.Cmd {
 		}
 	}
 
+	m.cfg.PlayerType = views.PlayerTypeFromString(m.settings.Fields[views.FieldPlayerType].Value())
 	m.cfg.PlayerPath = m.settings.Fields[views.FieldPlayerPath].Value()
 	m.cfg.PlayerArgs = views.PlayerArgsToSlice(m.settings.Fields[views.FieldPlayerArgs].Value())
 

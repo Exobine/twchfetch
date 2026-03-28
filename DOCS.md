@@ -156,7 +156,8 @@ All settings live under `config.toml`. Copy `config.example.toml` to
 |---|---|---|
 | `client_id` | built-in | Twitch application Client ID used for Helix API calls. The default ID ships with the binary; you can substitute your own registered application ID if needed. |
 | `oauth_token` | `""` | Plaintext token fallback. Prefer the OS keyring via Settings. |
-| `player_path` | `""` | Absolute path to your media player binary. Empty = playback disabled. |
+| `player_type` | `"mpv"` | Which player to use: `"mpv"` or `"vlc"`. Determines the default install-location search list and the argument style hint in Settings. |
+| `player_path` | `""` | Absolute path to your player binary. Leave empty to use default install locations and `$PATH` for the selected `player_type`. |
 | `player_args` | `[]` | Extra command-line arguments passed to the player after the stream/VOD URL. |
 | `refresh_max_workers` | `16` | Maximum parallel goroutines during a stream-status batch refresh. Higher values fetch faster but increase API call rate. |
 | `refresh_batch_size` | `5` | Number of channels fetched per API call during batch refresh. The Twitch API accepts up to 100 per request; smaller batches spread load. |
@@ -320,39 +321,74 @@ text and styled differently from native emotes to distinguish their source.
 
 ## 6. Stream and VOD playback
 
-twchfetch opens streams and VODs in an external media player. Set `player_path`
-to the absolute path of the player binary:
+twchfetch opens streams and VODs in an external media player. Two players are
+supported: [mpv](https://mpv.io/) and [VLC](https://www.videolan.org/).
+
+### Player type
+
+Set `player_type` to match your installed player:
 
 ```toml
-# Windows
+player_type = "mpv"   # default
+# or
+player_type = "vlc"
+```
+
+`player_type` controls:
+- Which default install locations are searched when `player_path` is empty
+- The argument style hint shown in the Settings UI
+
+### Player path resolution
+
+When a stream or VOD is opened, twchfetch finds the player binary using this
+order:
+
+1. **`player_path`** — if set and the file exists, it is used directly.
+2. **Default install locations** — common paths for the selected `player_type`
+   are checked (e.g. `C:\mpv\mpv.exe`, `C:\Program Files\MPV\mpv.exe` for mpv;
+   `C:\Program Files\VideoLAN\VLC\vlc.exe` for VLC).
+3. **`$PATH` / `%PATH%`** — the player type name (`mpv` or `vlc`) is looked up
+   in the system path.
+4. **Error** — if none of the above succeed, an error dialog is shown.
+
+An error is only displayed when the player cannot be found at all. Leaving
+`player_path` empty is valid and common — most installs are found automatically
+via step 2 or 3.
+
+### Configuration examples
+
+```toml
+# mpv on Windows — explicit path
+player_type = "mpv"
 player_path = "C:\\mpv\\mpv.exe"
+player_args = ["--volume=80", "--fs"]
 
-# Linux / macOS
-player_path = "/usr/bin/mpv"
+# mpv on Linux / macOS — auto-discovered via $PATH
+player_type = "mpv"
+player_path = ""
+player_args = ["--volume=80", "--fs"]
+
+# VLC on Windows — explicit path
+player_type = "vlc"
+player_path = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
+player_args = ["--volume=80", "--fullscreen"]
+
+# VLC on Windows — auto-discovered (standard install location)
+player_type = "vlc"
+player_path = ""
+player_args = ["--volume=80"]
 ```
 
-[mpv](https://mpv.io/) is recommended — it handles Twitch HLS streams natively
-via `yt-dlp` or `streamlink` integration.
+### Notes
 
-If `player_path` is empty the stream/VOD open keybinds (`Enter` for streams,
-`Enter` in the VOD browser for VODs) do nothing. The rest of the app functions
-without a player configured.
-
-Extra arguments can be passed via `player_args`:
-
-```toml
-player_args = ["--volume=70", "--fs"]
-```
-
-These are appended after the URL when the player is launched.
-
-It is most practical to use mpv as a player here, since we can set up domain
-specific profiles in mpv config. Remember you can just copy any URL via keyboard
-shortcuts and paste your URL into your desired player or browser, up to you.
-
-Another note, the app does not pass oauth parameters to mpv or any player for
-those who have turbo or are subbed, so you will get ads. You can instead
-add the proper parameter to the arguments, however it won't be protected.
+- mpv handles Twitch HLS streams natively via `yt-dlp` or `streamlink`
+  integration and supports domain-specific config profiles — it is the
+  recommended choice for most use cases.
+- twchfetch does not pass OAuth credentials to the player. Authenticated users
+  (Turbo, subscribers) will see ads in the player. The proper suppress parameter
+  can be added to `player_args` manually, though it will not be protected.
+- Stream and VOD URLs can also be copied via keyboard shortcut and pasted into
+  any player or browser independently.
 
 ---
 

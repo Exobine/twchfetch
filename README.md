@@ -48,7 +48,7 @@ This is a project I wanted to make to avoid directly interacting with the ever-g
   - Gift bomb suppression — when a gifter sends multiple subs at once, individual gift pings are collapsed into a single summary line; works in both arrival orders
 - **Search** — fuzzy search across tracked channels
 - **Settings UI** — adjust display and chat options at runtime without editing the config file
-- **mpv integration** — open any stream or VOD directly in mpv with a single keypress
+- **Media player integration** — open any stream or VOD directly in mpv or VLC with a single keypress
 - **Cross-platform build** — Windows, Linux, and macOS supported in code; currently tested on Windows only
 
 ---
@@ -58,7 +58,7 @@ This is a project I wanted to make to avoid directly interacting with the ever-g
 | Dependency | Notes |
 |---|---|
 | [Go](https://go.dev/dl/) 1.26.1+ | Build toolchain |
-| [mpv](https://mpv.io/) | Stream / VOD playback |
+| [mpv](https://mpv.io/) or [VLC](https://www.videolan.org/) | Stream / VOD playback (at least one required for playback; both optional) |
 | Twitch OAuth token | Optional — enables follow-list and authenticated chat |
 
 ---
@@ -87,24 +87,35 @@ Copy `config.example.toml` to `config.toml` and set at minimum:
 |---|---|
 | `client_id` | Twitch application Client ID |
 | `oauth_token` | Your Twitch OAuth token (leave empty for unauthenticated mode) |
-| `player_path` | Absolute path to your media player binary (empty = playback disabled) |
+| `player_type` | Player type: `"mpv"` (default) or `"vlc"` — determines default install locations and argument style |
+| `player_path` | Absolute path to your player binary. Leave empty to search default install locations and `$PATH` for the selected player type. |
 | `streamers.list` | Array of Twitch login names to monitor |
 
 ### Player setup
 
-twchfetch uses an external media player to open streams and VODs. [mpv](https://mpv.io/) is recommended — it handles Twitch HLS streams well out of the box.
+twchfetch uses an external media player to open streams and VODs. Set `player_type` to match the player you have installed — `"mpv"` (default) or `"vlc"`.
 
-Set `player_path` to the absolute path of your player binary:
+`player_path` can be left empty. twchfetch will search the following in order:
+1. Common default install locations for the selected player type
+2. `$PATH` / `%PATH%`
+
+Set `player_path` explicitly only if your player is installed somewhere non-standard:
 
 ```toml
-# Windows
+# mpv — Windows
+player_type = "mpv"
 player_path = "C:\\mpv\\mpv.exe"
 
-# Linux / macOS
-player_path = "/usr/bin/mpv"
+# VLC — Windows
+player_type = "vlc"
+player_path = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
+
+# Linux / macOS (usually leave player_path empty — found via $PATH)
+player_type = "mpv"
+player_path = ""
 ```
 
-> If `player_path` is empty the stream/VOD open keybind will do nothing. The rest of the app works without it.
+> An error dialog is shown only when the player cannot be found at all (wrong explicit path, not on `$PATH`, not in any standard location). The rest of the app works without a player configured.
 
 ---
 
@@ -150,7 +161,7 @@ The keyring method is strongly recommended — your token never touches the file
 #### Channel details
 | Key | Action |
 |---|---|
-| `p` | Play stream in mpv |
+| `p` | Play stream in configured player |
 | `t` | Open chat |
 | `v` | Open VOD browser |
 | `c` | Copy channel URL |
