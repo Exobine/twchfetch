@@ -29,7 +29,8 @@ An OAuth token is optional but substantially changes what the application can do
 - Chat connects anonymously using a randomly generated `justinfanNNNNNN` nick.
 - Anonymous connections can read follower-only and sub-only chat rooms normally.
   The restriction only applies to **sending** messages — anonymous users cannot
-  chat in restricted rooms, but reading is unaffected.
+  chat in restricted rooms, but reading is unaffected. However twitch may disconnect
+  you from offline chat rooms every few minutes preventing proper reads of chat.
 
 ### With a token (authenticated)
 
@@ -58,14 +59,13 @@ this prefix automatically when saving.
 
 ### Required OAuth scopes
 
-twchfetch needs only read permissions:
-
 | Scope | Purpose |
 |---|---|
 | `user:read:follows` | Fetch followed channel list |
+| `chat:edit` | Send messages in chat |
 
-Chat reading is permitted by all user tokens with no additional scope; the
-`chat:read` scope is only needed if Twitch tightens access in future.
+Chat reading is permitted by all user tokens with no additional scope. `chat:edit`
+is only required if you intend to send messages; the app functions without it.
 
 ---
 
@@ -233,7 +233,7 @@ On connection:
 | Read sub-only chat | Yes | Yes |
 | Send in follower-only chat | No | Yes (if you follow) |
 | Send in sub-only chat | No | Yes (if you subscribe) |
-| Send messages | No | Yes (not currently exposed in UI) |
+| Send messages | No | Yes |
 
 ### Auto-reconnect
 
