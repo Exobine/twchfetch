@@ -82,7 +82,8 @@ resolved in priority order:
 
 There is no hybrid mode — it is one source or the other. If you want to monitor
 channels you do not follow, use `streamers.list` without a token (or revoke
-follow-list access).
+follow-list access). This prevents confusion on who you're 'actually' following
+if you use oauth.
 
 > **Note:** the in-app Help tab states "Streamers field is ignored when an OAuth
 > token is set." This means the `streamers.list` array in `config.toml` has no
@@ -265,11 +266,13 @@ lines. twchfetch collapses this into a single summary line using a 30-second
 bidirectional window:
 
 - **Forward suppression** — if the summary arrives first, subsequent individual
-  gift events from the same gifter within 30 seconds are silently dropped.
+  gift events from the same gifter within 30 seconds are silently dropped. These
+  are immediately/seamlessly removed.
 - **Backward suppression** — if individual gift events arrive before the summary
   (the more common Twitch ordering), they are retroactively marked as suppressed
   when the summary arrives. The TUI renders them as greyed/dimmed entries rather
-  than removing them from the buffer.
+  than removing them from the buffer. These may show for a brief second and then
+  be removed.
 
 Both anonymous and named gift bombs are handled. The window is keyed by gifter
 login name.
@@ -342,6 +345,14 @@ player_args = ["--volume=70", "--fs"]
 ```
 
 These are appended after the URL when the player is launched.
+
+It is most practical to use mpv as a player here, since we can set up domain
+specific profiles in mpv config. Remember you can just copy any URL via keyboard
+shortcuts and paste your URL into your desired player or browser, up to you.
+
+Another note, the app does not pass oauth parameters to mpv or any player for
+those who have turbo or are subbed, so you will get ads. You can instead
+add the proper parameter to the arguments, however it won't be protected.
 
 ---
 
