@@ -1,0 +1,61 @@
+# twchfetch – example configuration
+# Copy this file to config.toml and fill in your values.
+# NEVER commit config.toml – it contains your OAuth token.
+
+# Twitch application Client ID (required)
+client_id = "YOUR_TWITCH_CLIENT_ID"
+
+# OAuth token – obtain via `twitch token` or your own OAuth flow (required)
+oauth_token = ""
+
+# Absolute path to your media player binary (required to open streams/VODs)
+# Leave empty to disable stream/VOD playback.
+# Examples:
+#   Windows:      player_path = "C:\\mpv\\mpv.exe"
+#   Linux/macOS:  player_path = "/usr/bin/mpv"
+player_path = ""
+
+# Internal hash used for GraphQL chapter queries (leave as-is unless Twitch changes it)
+chapter_hash = "71835d5ef425e154bf282453a926d99b328cdc5e32f36d3a209d0f4778b41203"
+
+# Concurrency settings
+refresh_max_workers = 16
+refresh_batch_size  = 5
+
+# Timeouts / intervals (seconds / minutes)
+request_timeout_sec    = 10
+auto_refresh_minutes   = 5
+cache_override_minutes = 15
+
+debug_logging = false
+
+[display]
+  vod_max_display        = 10
+  vod_categories_max_shown = 5
+  list_split_at          = 20
+  card_width             = 21
+  card_columns           = 0        # 0 = auto
+  card_pad_h             = 1
+  card_pad_v             = 1
+  card_live_color        = "#102910"
+  card_select_color      = "#2C2260"
+  display_mode           = "list"   # "list" or "cards"
+  list_table_count       = 2
+
+[streamers]
+  # Twitch login names (lowercase) of channels to monitor
+  list = []
+
+[chat]
+  max_messages        = 300
+  emote_colors        = true
+  strip_dingbats      = true
+  max_reconnects      = 5
+  show_reply          = true
+  trim_reply_mention  = true
+  collapse_repeats    = "all"       # "all", "none", or a number
+  alt_row_color       = "#141414"
+  localized_names     = true        # show display names (e.g. CJK) alongside login
+  text_badges         = true
+  third_party_emotes  = true
+  third_party_shading = false
