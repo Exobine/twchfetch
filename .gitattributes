@@ -5,3 +5,6 @@
 *.exe binary
 *.dll binary
 *.so  binary
+
+# Exclude .github folder from diffs
+.github/** diff=false
